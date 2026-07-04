@@ -199,7 +199,7 @@ export async function initSceneImageGenerator() {
     initialized = true;
 
     const html = await loadTemplate();
-    const target = document.querySelector('#extensions_settings2') || document.querySelector('#extensions_settings');
+    const target = document.querySelector('#sd_container') || document.querySelector('#extensions_settings2') || document.querySelector('#extensions_settings');
     if (!target) {
         throw new Error('Could not find SillyTavern extensions settings container.');
     }
