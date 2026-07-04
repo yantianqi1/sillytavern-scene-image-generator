@@ -3,11 +3,17 @@ import { extension_settings } from '../../../../extensions.js';
 
 export const MODULE_NAME = 'sceneImageGenerator';
 
-export const DEFAULT_REWRITE_PROMPT = `You are an art director for story-driven image generation.
+const OLD_DEFAULT_REWRITE_PROMPT = `You are an art director for story-driven image generation.
 Read the current roleplay scene and produce one image prompt.
 Focus on visible subjects, location, lighting, mood, composition, clothing, expression, action, and cinematic detail.
 Avoid dialogue, meta commentary, spoilers, UI text, and unsupported facts.
 Return only the final image prompt.`;
+
+export const DEFAULT_REWRITE_PROMPT = `你是负责剧情生图的视觉导演。
+请阅读当前角色扮演剧情，将场景整理成一个适合生图模型使用的提示词。
+重点描述可见主体、地点、光线、氛围、构图、服装、表情、动作和镜头感。
+不要输出对话、解释、元信息、剧透、界面文字或剧情中没有出现的事实。
+只返回最终生图提示词，不要添加其他说明。`;
 
 export const DEFAULT_SETTINGS = Object.freeze({
     selectedProfileId: '',
@@ -23,7 +29,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
     profiles: [
         {
             id: 'default-openai-compatible',
-            name: 'OpenAI Compatible',
+            name: 'OpenAI 兼容生图',
             provider: 'openai-compatible',
             apiUrl: '',
             apiKey: '',
@@ -67,6 +73,19 @@ export function getSettings() {
         settings.selectedProfileId = settings.profiles[0].id;
     }
 
+    if (settings.presetPrompt === OLD_DEFAULT_REWRITE_PROMPT) {
+        settings.presetPrompt = DEFAULT_REWRITE_PROMPT;
+    }
+
+    for (const profile of settings.profiles) {
+        if (profile.name === 'OpenAI Compatible') {
+            profile.name = 'OpenAI 兼容生图';
+        }
+        if (profile.name === 'New Image API') {
+            profile.name = '新的生图 API';
+        }
+    }
+
     return settings;
 }
 
@@ -77,7 +96,7 @@ export function saveSettings() {
 export function createProfile() {
     return {
         id: crypto.randomUUID(),
-        name: 'New Image API',
+        name: '新的生图 API',
         provider: 'openai-compatible',
         apiUrl: '',
         apiKey: '',

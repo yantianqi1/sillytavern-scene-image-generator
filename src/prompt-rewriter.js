@@ -3,10 +3,10 @@ import { generateQuietPrompt } from '../../../../../script.js';
 function buildRewritePrompt(sceneText, presetPrompt) {
     return `${presetPrompt.trim()}
 
-Current scene:
+当前剧情：
 ${sceneText.trim()}
 
-Image prompt:`;
+生图提示词：`;
 }
 
 function normalizeTextResponse(data) {
@@ -16,7 +16,7 @@ function normalizeTextResponse(data) {
 
 export async function rewritePrompt(sceneText, settings) {
     if (!sceneText.trim()) {
-        throw new Error('No chat scene is available yet.');
+        throw new Error('当前还没有可用的聊天剧情。');
     }
 
     const quietPrompt = buildRewritePrompt(sceneText, settings.presetPrompt);
@@ -31,7 +31,7 @@ export async function rewritePrompt(sceneText, settings) {
     }
 
     if (!settings.rewrite.apiUrl || !settings.rewrite.model) {
-        throw new Error('Custom rewrite API URL and model are required.');
+        throw new Error('使用自定义改写模型时，必须填写 API 地址和模型名。');
     }
 
     const response = await fetch(settings.rewrite.apiUrl.replace(/\/$/, '') + '/chat/completions', {
@@ -51,13 +51,13 @@ export async function rewritePrompt(sceneText, settings) {
     });
 
     if (!response.ok) {
-        throw new Error(`Rewrite request failed: HTTP ${response.status}`);
+        throw new Error(`提示词改写请求失败：HTTP ${response.status}`);
     }
 
     const data = await response.json();
     const prompt = normalizeTextResponse(data);
     if (!prompt) {
-        throw new Error('Rewrite API returned an empty prompt.');
+        throw new Error('提示词改写 API 返回了空内容。');
     }
 
     return prompt;

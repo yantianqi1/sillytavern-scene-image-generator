@@ -1,17 +1,17 @@
 <div id="scene_image_generator_container" class="scene-image-generator extension_container">
     <div class="inline-drawer">
         <div class="inline-drawer-toggle inline-drawer-header">
-            <b>剧情生图 / Scene Image Generator</b>
+            <b>剧情生图</b>
             <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
         </div>
         <div class="inline-drawer-content">
             <div class="sig-grid">
                 <label>
-                    Active image profile
+                    当前生图配置
                     <select id="sig_profile_select"></select>
                 </label>
                 <label>
-                    Recent turns
+                    读取最近轮数
                     <input id="sig_context_turns" type="number" min="1" max="20" step="1">
                 </label>
             </div>
@@ -19,93 +19,93 @@
             <div class="sig-actions">
                 <button id="sig_generate" class="menu_button" type="button">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    Generate from current scene
+                    根据当前剧情生图
                 </button>
                 <button id="sig_save_general" class="menu_button" type="button">
                     <i class="fa-solid fa-floppy-disk"></i>
-                    Save settings
+                    保存设置
                 </button>
             </div>
 
             <label>
-                Scene-to-image preset prompt
+                剧情转生图提示词预设
                 <textarea id="sig_preset_prompt" rows="8"></textarea>
             </label>
 
-            <h4>Prompt rewrite model</h4>
+            <h4>提示词改写模型</h4>
             <div class="sig-grid">
                 <label>
-                    Mode
+                    模式
                     <select id="sig_rewrite_mode">
-                        <option value="current">Use current SillyTavern model</option>
-                        <option value="custom">Use custom OpenAI-compatible chat API</option>
+                        <option value="current">使用 SillyTavern 当前聊天模型</option>
+                        <option value="custom">使用自定义 OpenAI 兼容聊天 API</option>
                     </select>
                 </label>
                 <label>
-                    Temperature
+                    温度
                     <input id="sig_rewrite_temperature" type="number" min="0" max="2" step="0.1">
                 </label>
             </div>
             <div class="sig-grid">
                 <label>
-                    Custom chat API base URL
+                    自定义聊天 API 地址
                     <input id="sig_rewrite_api_url" type="text" placeholder="https://api.example.com/v1">
                 </label>
                 <label>
-                    Custom chat model
+                    自定义聊天模型
                     <input id="sig_rewrite_model" type="text" placeholder="gpt-4o-mini">
                 </label>
             </div>
             <label>
-                Custom chat API key
+                自定义聊天 API 密钥
                 <input id="sig_rewrite_api_key" type="password" autocomplete="off">
             </label>
 
-            <h4>Image API profiles</h4>
+            <h4>生图 API 配置</h4>
             <div class="sig-actions">
                 <button id="sig_add_profile" class="menu_button" type="button">
                     <i class="fa-solid fa-plus"></i>
-                    Add
+                    新增
                 </button>
                 <button id="sig_save_profile" class="menu_button" type="button">
                     <i class="fa-solid fa-floppy-disk"></i>
-                    Save profile
+                    保存配置
                 </button>
                 <button id="sig_delete_profile" class="menu_button" type="button">
                     <i class="fa-solid fa-trash"></i>
-                    Delete
+                    删除
                 </button>
             </div>
 
             <div class="sig-grid">
                 <label>
-                    Profile name
+                    配置名称
                     <input id="sig_profile_name" type="text">
                 </label>
                 <label>
-                    Provider
+                    服务类型
                     <select id="sig_provider">
-                        <option value="openai-compatible">OpenAI-compatible image API</option>
+                        <option value="openai-compatible">OpenAI 兼容生图 API</option>
                     </select>
                 </label>
             </div>
             <div class="sig-grid">
                 <label>
-                    Image API base URL
+                    生图 API 地址
                     <input id="sig_image_api_url" type="text" placeholder="https://api.example.com/v1">
                 </label>
                 <label>
-                    Image model
+                    生图模型
                     <input id="sig_image_model" type="text" placeholder="gpt-image-1">
                 </label>
             </div>
             <div class="sig-grid">
                 <label>
-                    Size
+                    图片尺寸
                     <input id="sig_image_size" type="text" placeholder="1024x1024">
                 </label>
                 <label>
-                    Response format
+                    返回格式
                     <select id="sig_response_format">
                         <option value="b64_json">b64_json</option>
                         <option value="url">url</option>
@@ -113,29 +113,29 @@
                 </label>
             </div>
             <label>
-                Image API key
+                生图 API 密钥
                 <input id="sig_image_api_key" type="password" autocomplete="off">
             </label>
             <label>
-                Extra image request params JSON
+                额外生图请求参数 JSON
                 <textarea id="sig_extra_params" rows="4" spellcheck="false"></textarea>
             </label>
 
-            <h4>Last result</h4>
+            <h4>上次结果</h4>
             <label>
-                Generated prompt
+                生成提示词
                 <textarea id="sig_last_prompt" rows="5" readonly></textarea>
             </label>
             <div id="sig_result" class="sig-result displayNone">
-                <img id="sig_result_image" alt="Generated scene">
+                <img id="sig_result_image" alt="生成的剧情图片">
                 <div class="sig-actions">
                     <button id="sig_copy_prompt" class="menu_button" type="button">
                         <i class="fa-solid fa-copy"></i>
-                        Copy prompt
+                        复制提示词
                     </button>
                     <button id="sig_open_image" class="menu_button" type="button">
                         <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                        Open image
+                        打开图片
                     </button>
                 </div>
             </div>

@@ -1,45 +1,45 @@
-# SillyTavern Scene Image Generator
+# SillyTavern 剧情生图
 
-A SillyTavern third-party extension for generating images from the current roleplay scene.
+一个 SillyTavern 第三方扩展，用当前聊天剧情生成图片。
 
-The extension reads the latest chat turns, rewrites the scene into an image prompt with either the current SillyTavern chat model or a custom OpenAI-compatible chat API, then sends the prompt to a selected image API profile.
+扩展会读取最近几轮聊天剧情，使用 SillyTavern 当前聊天模型，或插件内单独配置的 OpenAI 兼容聊天 API，将剧情改写成生图提示词，然后发送给选中的生图 API 配置。
 
-## Features
+## 功能
 
-- Multiple image API profiles.
-- First provider: OpenAI-compatible `/v1/images/generations`.
-- Scene prompt rewriting with the current SillyTavern model by default.
-- Optional custom rewrite API URL, key, and model.
-- Adjustable recent-turn context window.
-- Result preview, generated prompt display, and prompt copy.
+- 保存多个生图 API 配置，并随时切换。
+- 当前已实现 OpenAI 兼容的 `/v1/images/generations`。
+- 默认使用 SillyTavern 当前聊天模型改写剧情。
+- 可选单独配置提示词改写 API 地址、密钥和模型。
+- 可调整读取最近几轮剧情。
+- 显示图片预览、生成提示词，并支持复制提示词。
 
-## Install
+## 安装
 
-In SillyTavern, install this repository as a third-party extension by URL.
+在 SillyTavern 的第三方扩展安装界面中输入本仓库 URL。
 
-For local development, copy or symlink this folder to:
+本地开发时，可以复制或软链接到：
 
 ```text
 data/default-user/extensions/sillytavern-scene-image-generator
 ```
 
-Then reload SillyTavern.
+然后刷新 SillyTavern 页面。
 
-## Image API Profile
+## 生图 API 配置
 
-For OpenAI-compatible image APIs, set:
+OpenAI 兼容生图 API 通常需要填写：
 
-- Base URL: `https://api.example.com/v1`
-- Model: `gpt-image-1` or your provider's image model
-- API key: your provider key
-- Size: for example `1024x1024`
-- Response format: `b64_json` or `url`
+- API 地址：`https://api.example.com/v1`
+- 模型：`gpt-image-1` 或供应商提供的生图模型名
+- API 密钥：供应商密钥
+- 图片尺寸：例如 `1024x1024`
+- 返回格式：`b64_json` 或 `url`
 
-Extra params must be a JSON object. They are merged into the image generation request.
+额外参数必须是 JSON 对象，会合并进生图请求。
 
-## Roadmap
+## 后续计划
 
-- Stable Diffusion WebUI provider.
-- ComfyUI provider.
-- Insert generated image into the current chat.
-- Per-character prompt presets.
+- 支持 Stable Diffusion WebUI。
+- 支持 ComfyUI。
+- 将生成图片插入当前聊天。
+- 支持按角色保存提示词预设。

@@ -6,11 +6,11 @@ function parseExtraParams(profile) {
     try {
         const parsed = JSON.parse(profile.extraParams);
         if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-            throw new Error('Extra params must be a JSON object.');
+            throw new Error('额外参数必须是 JSON 对象。');
         }
         return parsed;
     } catch (error) {
-        throw new Error(`Invalid extra params JSON: ${error.message}`);
+        throw new Error(`额外参数 JSON 无效：${error.message}`);
     }
 }
 
@@ -33,10 +33,10 @@ function extractImageUrl(data) {
 
 export async function generateOpenAICompatibleImage(prompt, profile) {
     if (!profile.apiUrl) {
-        throw new Error('Image API URL is required.');
+        throw new Error('请填写生图 API 地址。');
     }
     if (!profile.model) {
-        throw new Error('Image model is required.');
+        throw new Error('请填写生图模型。');
     }
 
     const response = await fetch(profile.apiUrl.replace(/\/$/, '') + '/images/generations', {
@@ -56,13 +56,13 @@ export async function generateOpenAICompatibleImage(prompt, profile) {
 
     if (!response.ok) {
         const message = await response.text().catch(() => '');
-        throw new Error(`Image request failed: HTTP ${response.status}${message ? ` - ${message}` : ''}`);
+        throw new Error(`生图请求失败：HTTP ${response.status}${message ? ` - ${message}` : ''}`);
     }
 
     const data = await response.json();
     const imageUrl = extractImageUrl(data);
     if (!imageUrl) {
-        throw new Error('Image API returned no image URL or base64 payload.');
+        throw new Error('生图 API 没有返回图片 URL 或 base64 图片数据。');
     }
 
     return imageUrl;

@@ -9,7 +9,7 @@ let initialized = false;
 async function loadTemplate() {
     const response = await fetch(TEMPLATE_URL);
     if (!response.ok) {
-        throw new Error(`Could not load settings template: HTTP ${response.status}`);
+        throw new Error(`无法加载设置面板：HTTP ${response.status}`);
     }
     return response.text();
 }
@@ -23,7 +23,7 @@ function setStatus(message, type = 'info') {
 
 function getProfileFormData() {
     return {
-        name: $('#sig_profile_name').val()?.toString() || 'Image API',
+        name: $('#sig_profile_name').val()?.toString() || '生图 API',
         provider: $('#sig_provider').val()?.toString() || 'openai-compatible',
         apiUrl: $('#sig_image_api_url').val()?.toString().trim() || '',
         apiKey: $('#sig_image_api_key').val()?.toString() || '',
@@ -71,7 +71,7 @@ function saveCurrentProfile() {
     Object.assign(selected, getProfileFormData());
     saveSettings();
     renderProfiles();
-    setStatus('Profile saved.', 'success');
+    setStatus('配置已保存。', 'success');
 }
 
 function addProfile() {
@@ -81,13 +81,13 @@ function addProfile() {
     settings.selectedProfileId = profile.id;
     saveSettings();
     renderProfiles();
-    setStatus('New profile added.', 'success');
+    setStatus('已新增配置。', 'success');
 }
 
 function deleteProfile() {
     const settings = getSettings();
     if (settings.profiles.length <= 1) {
-        setStatus('Keep at least one image profile.', 'warning');
+        setStatus('至少需要保留一个生图配置。', 'warning');
         return;
     }
 
@@ -95,7 +95,7 @@ function deleteProfile() {
     settings.selectedProfileId = settings.profiles[0]?.id || '';
     saveSettings();
     renderProfiles();
-    setStatus('Profile deleted.', 'success');
+    setStatus('配置已删除。', 'success');
 }
 
 function saveGeneralSettings() {
@@ -136,7 +136,7 @@ async function runSceneGeneration() {
     const settings = getSettings();
     const profile = getSelectedProfile();
     if (!profile) {
-        setStatus('Create an image API profile first.', 'warning');
+        setStatus('请先创建一个生图 API 配置。', 'warning');
         return;
     }
 
@@ -144,23 +144,23 @@ async function runSceneGeneration() {
     saveCurrentProfile();
 
     const sceneText = collectSceneContext(settings.contextTurns) || getLastSceneText();
-    setStatus('Rewriting current scene into an image prompt...', 'info');
+    setStatus('正在将当前剧情改写为生图提示词...', 'info');
 
     try {
         $('#sig_generate').prop('disabled', true);
         const prompt = await rewritePrompt(sceneText, settings);
-        setStatus('Generating image...', 'info');
+        setStatus('正在生成图片...', 'info');
         const imageUrl = await generateImage(prompt, profile);
 
         settings.lastPrompt = prompt;
         settings.lastImageUrl = imageUrl;
         saveSettings();
         renderResult(prompt, imageUrl);
-        setStatus('Image generated.', 'success');
+        setStatus('图片生成完成。', 'success');
     } catch (error) {
-        console.error('[Scene Image Generator]', error);
+        console.error('[剧情生图]', error);
         setStatus(error.message || String(error), 'error');
-        globalThis.toastr?.error?.(error.message || String(error), 'Scene Image Generator');
+        globalThis.toastr?.error?.(error.message || String(error), '剧情生图');
     } finally {
         $('#sig_generate').prop('disabled', false);
     }
@@ -180,11 +180,11 @@ function bindEvents() {
     $('#sig_generate').on('click', runSceneGeneration);
     $('#sig_save_general').on('click', () => {
         saveGeneralSettings();
-        setStatus('Settings saved.', 'success');
+        setStatus('设置已保存。', 'success');
     });
     $('#sig_copy_prompt').on('click', async () => {
         await navigator.clipboard.writeText($('#sig_last_prompt').val()?.toString() || '');
-        setStatus('Prompt copied.', 'success');
+        setStatus('提示词已复制。', 'success');
     });
     $('#sig_open_image').on('click', () => {
         const src = $('#sig_result_image').attr('src');
@@ -201,7 +201,7 @@ export async function initSceneImageGenerator() {
     const html = await loadTemplate();
     const target = document.querySelector('#sd_container') || document.querySelector('#extensions_settings2') || document.querySelector('#extensions_settings');
     if (!target) {
-        throw new Error('Could not find SillyTavern extensions settings container.');
+        throw new Error('找不到 SillyTavern 扩展设置容器。');
     }
 
     target.insertAdjacentHTML('beforeend', html);
