@@ -167,6 +167,18 @@ async function runSceneGeneration() {
 }
 
 function bindEvents() {
+    $('.scene-image-generator .sig-tab').on('click', function () {
+        const tab = this.dataset.tab;
+        $('.scene-image-generator .sig-tab')
+            .removeClass('active')
+            .attr('aria-selected', 'false');
+        $(this)
+            .addClass('active')
+            .attr('aria-selected', 'true');
+        $('.scene-image-generator .sig-tab-panel').removeClass('active');
+        $(`.scene-image-generator .sig-tab-panel[data-tab-panel="${tab}"]`).addClass('active');
+    });
+
     $('#sig_profile_select').on('change', function () {
         const settings = getSettings();
         settings.selectedProfileId = this.value;

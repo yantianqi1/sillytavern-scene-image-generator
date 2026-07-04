@@ -5,140 +5,166 @@
             <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
         </div>
         <div class="inline-drawer-content">
-            <div class="sig-grid">
-                <label>
-                    当前生图配置
-                    <select id="sig_profile_select"></select>
-                </label>
-                <label>
-                    读取最近轮数
-                    <input id="sig_context_turns" type="number" min="1" max="20" step="1">
-                </label>
-            </div>
-
-            <div class="sig-actions">
-                <button id="sig_generate" class="menu_button" type="button">
+            <div class="sig-tabs" role="tablist" aria-label="剧情生图设置分类">
+                <button class="sig-tab active" type="button" data-tab="generate" role="tab" aria-selected="true">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    根据当前剧情生图
+                    生成
                 </button>
-                <button id="sig_save_general" class="menu_button" type="button">
-                    <i class="fa-solid fa-floppy-disk"></i>
-                    保存设置
+                <button class="sig-tab" type="button" data-tab="prompt" role="tab" aria-selected="false">
+                    <i class="fa-solid fa-pen-nib"></i>
+                    提示词
                 </button>
-            </div>
-
-            <label>
-                剧情转生图提示词预设
-                <textarea id="sig_preset_prompt" rows="8"></textarea>
-            </label>
-
-            <h4>提示词改写模型</h4>
-            <div class="sig-grid">
-                <label>
-                    模式
-                    <select id="sig_rewrite_mode">
-                        <option value="current">使用 SillyTavern 当前聊天模型</option>
-                        <option value="custom">使用自定义 OpenAI 兼容聊天 API</option>
-                    </select>
-                </label>
-                <label>
-                    温度
-                    <input id="sig_rewrite_temperature" type="number" min="0" max="2" step="0.1">
-                </label>
-            </div>
-            <div class="sig-grid">
-                <label>
-                    自定义聊天 API 地址
-                    <input id="sig_rewrite_api_url" type="text" placeholder="https://api.example.com/v1">
-                </label>
-                <label>
-                    自定义聊天模型
-                    <input id="sig_rewrite_model" type="text" placeholder="gpt-4o-mini">
-                </label>
-            </div>
-            <label>
-                自定义聊天 API 密钥
-                <input id="sig_rewrite_api_key" type="password" autocomplete="off">
-            </label>
-
-            <h4>生图 API 配置</h4>
-            <div class="sig-actions">
-                <button id="sig_add_profile" class="menu_button" type="button">
-                    <i class="fa-solid fa-plus"></i>
-                    新增
+                <button class="sig-tab" type="button" data-tab="api" role="tab" aria-selected="false">
+                    <i class="fa-solid fa-plug"></i>
+                    生图 API
                 </button>
-                <button id="sig_save_profile" class="menu_button" type="button">
-                    <i class="fa-solid fa-floppy-disk"></i>
-                    保存配置
-                </button>
-                <button id="sig_delete_profile" class="menu_button" type="button">
-                    <i class="fa-solid fa-trash"></i>
-                    删除
+                <button class="sig-tab" type="button" data-tab="result" role="tab" aria-selected="false">
+                    <i class="fa-solid fa-image"></i>
+                    结果
                 </button>
             </div>
 
-            <div class="sig-grid">
-                <label>
-                    配置名称
-                    <input id="sig_profile_name" type="text">
-                </label>
-                <label>
-                    服务类型
-                    <select id="sig_provider">
-                        <option value="openai-compatible">OpenAI 兼容生图 API</option>
-                    </select>
-                </label>
-            </div>
-            <div class="sig-grid">
-                <label>
-                    生图 API 地址
-                    <input id="sig_image_api_url" type="text" placeholder="https://api.example.com/v1">
-                </label>
-                <label>
-                    生图模型
-                    <input id="sig_image_model" type="text" placeholder="gpt-image-1">
-                </label>
-            </div>
-            <div class="sig-grid">
-                <label>
-                    图片尺寸
-                    <input id="sig_image_size" type="text" placeholder="1024x1024">
-                </label>
-                <label>
-                    返回格式
-                    <select id="sig_response_format">
-                        <option value="b64_json">b64_json</option>
-                        <option value="url">url</option>
-                    </select>
-                </label>
-            </div>
-            <label>
-                生图 API 密钥
-                <input id="sig_image_api_key" type="password" autocomplete="off">
-            </label>
-            <label>
-                额外生图请求参数 JSON
-                <textarea id="sig_extra_params" rows="4" spellcheck="false"></textarea>
-            </label>
+            <section class="sig-tab-panel active" data-tab-panel="generate" role="tabpanel">
+                <div class="sig-grid sig-grid-compact">
+                    <label>
+                        当前生图配置
+                        <select id="sig_profile_select"></select>
+                    </label>
+                    <label>
+                        读取最近轮数
+                        <input id="sig_context_turns" type="number" min="1" max="20" step="1">
+                    </label>
+                </div>
 
-            <h4>上次结果</h4>
-            <label>
-                生成提示词
-                <textarea id="sig_last_prompt" rows="5" readonly></textarea>
-            </label>
-            <div id="sig_result" class="sig-result displayNone">
-                <img id="sig_result_image" alt="生成的剧情图片">
                 <div class="sig-actions">
-                    <button id="sig_copy_prompt" class="menu_button" type="button">
-                        <i class="fa-solid fa-copy"></i>
-                        复制提示词
+                    <button id="sig_generate" class="menu_button sig-button" type="button">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        生成
                     </button>
-                    <button id="sig_open_image" class="menu_button" type="button">
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                        打开图片
+                    <button id="sig_save_general" class="menu_button sig-button" type="button">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        保存
                     </button>
                 </div>
-            </div>
+            </section>
+
+            <section class="sig-tab-panel" data-tab-panel="prompt" role="tabpanel">
+                <label>
+                    剧情转生图提示词预设
+                    <textarea id="sig_preset_prompt" rows="6"></textarea>
+                </label>
+
+                <h4>提示词改写模型</h4>
+                <div class="sig-grid sig-grid-compact">
+                    <label>
+                        模式
+                        <select id="sig_rewrite_mode">
+                            <option value="current">使用当前聊天模型</option>
+                            <option value="custom">使用自定义聊天 API</option>
+                        </select>
+                    </label>
+                    <label>
+                        温度
+                        <input id="sig_rewrite_temperature" type="number" min="0" max="2" step="0.1">
+                    </label>
+                </div>
+                <div class="sig-grid sig-grid-compact">
+                    <label>
+                        自定义聊天 API 地址
+                        <input id="sig_rewrite_api_url" type="text" placeholder="https://api.example.com/v1">
+                    </label>
+                    <label>
+                        自定义聊天模型
+                        <input id="sig_rewrite_model" type="text" placeholder="gpt-4o-mini">
+                    </label>
+                </div>
+                <label>
+                    自定义聊天 API 密钥
+                    <input id="sig_rewrite_api_key" type="password" autocomplete="off">
+                </label>
+            </section>
+
+            <section class="sig-tab-panel" data-tab-panel="api" role="tabpanel">
+                <div class="sig-actions">
+                    <button id="sig_add_profile" class="menu_button sig-button" type="button">
+                        <i class="fa-solid fa-plus"></i>
+                        新增
+                    </button>
+                    <button id="sig_save_profile" class="menu_button sig-button" type="button">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        保存
+                    </button>
+                    <button id="sig_delete_profile" class="menu_button sig-button" type="button">
+                        <i class="fa-solid fa-trash"></i>
+                        删除
+                    </button>
+                </div>
+
+                <div class="sig-grid sig-grid-compact">
+                    <label>
+                        配置名称
+                        <input id="sig_profile_name" type="text">
+                    </label>
+                    <label>
+                        服务类型
+                        <select id="sig_provider">
+                            <option value="openai-compatible">OpenAI 兼容生图 API</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="sig-grid sig-grid-compact">
+                    <label>
+                        生图 API 地址
+                        <input id="sig_image_api_url" type="text" placeholder="https://api.example.com/v1">
+                    </label>
+                    <label>
+                        生图模型
+                        <input id="sig_image_model" type="text" placeholder="gpt-image-1">
+                    </label>
+                </div>
+                <div class="sig-grid sig-grid-compact">
+                    <label>
+                        图片尺寸
+                        <input id="sig_image_size" type="text" placeholder="1024x1024">
+                    </label>
+                    <label>
+                        返回格式
+                        <select id="sig_response_format">
+                            <option value="b64_json">b64_json</option>
+                            <option value="url">url</option>
+                        </select>
+                    </label>
+                </div>
+                <label>
+                    生图 API 密钥
+                    <input id="sig_image_api_key" type="password" autocomplete="off">
+                </label>
+                <label>
+                    额外生图请求参数 JSON
+                    <textarea id="sig_extra_params" rows="3" spellcheck="false"></textarea>
+                </label>
+            </section>
+
+            <section class="sig-tab-panel" data-tab-panel="result" role="tabpanel">
+                <label>
+                    生成提示词
+                    <textarea id="sig_last_prompt" rows="4" readonly></textarea>
+                </label>
+                <div id="sig_result" class="sig-result displayNone">
+                    <img id="sig_result_image" alt="生成的剧情图片">
+                </div>
+                <div class="sig-actions">
+                    <button id="sig_copy_prompt" class="menu_button sig-button" type="button">
+                        <i class="fa-solid fa-copy"></i>
+                        复制
+                    </button>
+                    <button id="sig_open_image" class="menu_button sig-button" type="button">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        打开
+                    </button>
+                </div>
+            </section>
+
             <div id="sig_status" class="sig-status" data-type="info"></div>
         </div>
     </div>
