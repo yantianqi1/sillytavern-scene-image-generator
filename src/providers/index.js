@@ -1,7 +1,9 @@
 import { generateOpenAICompatibleImage } from './openai-compatible.js';
+import { generateNovelAIImage } from './novelai-newapi.js';
 
 const providers = {
     'openai-compatible': generateOpenAICompatibleImage,
+    'novelai-newapi': generateNovelAIImage,
 };
 
 export async function generateImage(prompt, profile) {

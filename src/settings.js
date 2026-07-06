@@ -1,5 +1,19 @@
 import { saveSettingsDebounced } from '../../../../../script.js';
 import { extension_settings } from '../../../../extensions.js';
+import {
+    DEFAULT_PROMPT_PRESETS,
+    DEFAULT_REWRITE_PROMPT,
+    createPromptPreset as createPromptPresetData,
+    getSelectedPromptPreset as getSelectedPromptPresetData,
+    normalizePromptPresets,
+} from './prompt-presets.js';
+import {
+    DEFAULT_NOVELAI_STYLE_PRESETS,
+    createNovelAIStylePreset as createNovelAIStylePresetData,
+    getSelectedNovelAIStylePreset as getSelectedNovelAIStylePresetData,
+    normalizeNovelAIStylePresets,
+} from './novelai-style-presets.js';
+import { getProfileNameForProvider } from './profile-names.js';
 
 export const MODULE_NAME = 'sceneImageGenerator';
 
@@ -9,16 +23,17 @@ Focus on visible subjects, location, lighting, mood, composition, clothing, expr
 Avoid dialogue, meta commentary, spoilers, UI text, and unsupported facts.
 Return only the final image prompt.`;
 
-export const DEFAULT_REWRITE_PROMPT = `你是负责剧情生图的视觉导演。
-请阅读当前角色扮演剧情，将场景整理成一个适合生图模型使用的提示词。
-重点描述可见主体、地点、光线、氛围、构图、服装、表情、动作和镜头感。
-不要输出对话、解释、元信息、剧透、界面文字或剧情中没有出现的事实。
-只返回最终生图提示词，不要添加其他说明。`;
+export { DEFAULT_REWRITE_PROMPT };
 
 export const DEFAULT_SETTINGS = Object.freeze({
     selectedProfileId: '',
     contextTurns: 4,
+    imageRetryCount: 0,
     presetPrompt: DEFAULT_REWRITE_PROMPT,
+    selectedPromptPresetId: DEFAULT_PROMPT_PRESETS[0].id,
+    promptPresets: structuredClone(DEFAULT_PROMPT_PRESETS),
+    selectedNovelAIStylePresetId: DEFAULT_NOVELAI_STYLE_PRESETS[0].id,
+    novelAIStylePresets: structuredClone(DEFAULT_NOVELAI_STYLE_PRESETS),
     rewrite: {
         mode: 'current',
         apiUrl: '',
@@ -37,10 +52,18 @@ export const DEFAULT_SETTINGS = Object.freeze({
             size: '1024x1024',
             responseFormat: 'b64_json',
             extraParams: '{}',
+            negativePrompt: '',
+            steps: 28,
+            scale: 5,
+            sampler: 'k_euler_ancestral',
+            seed: '',
+            novelaiParams: '{"qualityToggle":true,"ucPreset":0}',
         },
     ],
     lastPrompt: '',
+    lastBasePrompt: '',
     lastImageUrl: '',
+    gallery: [],
 });
 
 export function getSettings() {
@@ -69,12 +92,19 @@ export function getSettings() {
         settings.profiles = structuredClone(DEFAULT_SETTINGS.profiles);
     }
 
-    if (!settings.selectedProfileId && settings.profiles.length > 0) {
-        settings.selectedProfileId = settings.profiles[0].id;
+    if (!Array.isArray(settings.gallery)) {
+        settings.gallery = [];
     }
 
     if (settings.presetPrompt === OLD_DEFAULT_REWRITE_PROMPT) {
         settings.presetPrompt = DEFAULT_REWRITE_PROMPT;
+    }
+
+    normalizePromptPresets(settings);
+    normalizeNovelAIStylePresets(settings);
+
+    if (!settings.selectedProfileId && settings.profiles.length > 0) {
+        settings.selectedProfileId = settings.profiles[0].id;
     }
 
     for (const profile of settings.profiles) {
@@ -83,6 +113,9 @@ export function getSettings() {
         }
         if (profile.name === 'New Image API') {
             profile.name = '新的生图 API';
+        }
+        if (!profile.name || profile.name === '生图 API' || profile.name === '新的生图 API') {
+            profile.name = getProfileNameForProvider(profile.provider);
         }
     }
 
@@ -96,7 +129,7 @@ export function saveSettings() {
 export function createProfile() {
     return {
         id: crypto.randomUUID(),
-        name: '新的生图 API',
+        name: getProfileNameForProvider('openai-compatible'),
         provider: 'openai-compatible',
         apiUrl: '',
         apiKey: '',
@@ -104,10 +137,32 @@ export function createProfile() {
         size: '1024x1024',
         responseFormat: 'b64_json',
         extraParams: '{}',
+        negativePrompt: '',
+        steps: 28,
+        scale: 5,
+        sampler: 'k_euler_ancestral',
+        seed: '',
+        novelaiParams: '{"qualityToggle":true,"ucPreset":0}',
     };
 }
 
 export function getSelectedProfile() {
     const settings = getSettings();
     return settings.profiles.find(profile => profile.id === settings.selectedProfileId) || settings.profiles[0] || null;
+}
+
+export function createPromptPreset() {
+    return createPromptPresetData();
+}
+
+export function getSelectedPromptPreset() {
+    return getSelectedPromptPresetData(getSettings());
+}
+
+export function createNovelAIStylePreset() {
+    return createNovelAIStylePresetData();
+}
+
+export function getSelectedNovelAIStylePreset() {
+    return getSelectedNovelAIStylePresetData(getSettings());
 }

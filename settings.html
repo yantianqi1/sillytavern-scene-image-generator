@@ -22,6 +22,10 @@
                     <i class="fa-solid fa-image"></i>
                     结果
                 </button>
+                <button class="sig-tab" type="button" data-tab="gallery" role="tab" aria-selected="false">
+                    <i class="fa-solid fa-images"></i>
+                    图库
+                </button>
             </div>
 
             <section class="sig-tab-panel active" data-tab-panel="generate" role="tabpanel">
@@ -33,6 +37,10 @@
                     <label>
                         读取最近轮数
                         <input id="sig_context_turns" type="number" min="1" max="20" step="1">
+                    </label>
+                    <label>
+                        生图失败重试次数
+                        <input id="sig_image_retry_count" type="number" min="0" max="10" step="1">
                     </label>
                 </div>
 
@@ -49,8 +57,34 @@
             </section>
 
             <section class="sig-tab-panel" data-tab-panel="prompt" role="tabpanel">
+                <div class="sig-grid sig-grid-compact">
+                    <label>
+                        当前提示词预设
+                        <select id="sig_prompt_preset_select"></select>
+                    </label>
+                    <label>
+                        预设名称
+                        <input id="sig_prompt_preset_name" type="text">
+                    </label>
+                </div>
+
+                <div class="sig-actions">
+                    <button id="sig_add_prompt_preset" class="menu_button sig-button" type="button">
+                        <i class="fa-solid fa-plus"></i>
+                        新增
+                    </button>
+                    <button id="sig_save_prompt_preset" class="menu_button sig-button" type="button">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        保存
+                    </button>
+                    <button id="sig_delete_prompt_preset" class="menu_button sig-button" type="button">
+                        <i class="fa-solid fa-trash"></i>
+                        删除
+                    </button>
+                </div>
+
                 <label>
-                    剧情转生图提示词预设
+                    预设提示词内容
                     <textarea id="sig_preset_prompt" rows="6"></textarea>
                 </label>
 
@@ -85,45 +119,39 @@
             </section>
 
             <section class="sig-tab-panel" data-tab-panel="api" role="tabpanel">
-                <div class="sig-actions">
-                    <button id="sig_add_profile" class="menu_button sig-button" type="button">
-                        <i class="fa-solid fa-plus"></i>
-                        新增
-                    </button>
-                    <button id="sig_save_profile" class="menu_button sig-button" type="button">
-                        <i class="fa-solid fa-floppy-disk"></i>
-                        保存
-                    </button>
-                    <button id="sig_delete_profile" class="menu_button sig-button" type="button">
-                        <i class="fa-solid fa-trash"></i>
-                        删除
-                    </button>
-                </div>
-
                 <div class="sig-grid sig-grid-compact">
-                    <label>
-                        配置名称
-                        <input id="sig_profile_name" type="text">
-                    </label>
                     <label>
                         服务类型
                         <select id="sig_provider">
                             <option value="openai-compatible">OpenAI 兼容生图 API</option>
+                            <option value="novelai-newapi">NovelAI NewAPI 生图</option>
                         </select>
                     </label>
                 </div>
                 <div class="sig-grid sig-grid-compact">
                     <label>
-                        生图 API 地址
+                        生图 API 地址 / NewAPI Base URL
                         <input id="sig_image_api_url" type="text" placeholder="https://api.example.com/v1">
                     </label>
                     <label>
                         生图模型
-                        <input id="sig_image_model" type="text" placeholder="gpt-image-1">
+                        <span class="sig-inline-field">
+                            <input id="sig_image_model" type="text" list="sig_novelai_model_presets" placeholder="gpt-image-1 / nai-diffusion-4-5-full-1024x1024">
+                            <select id="sig_image_model_select" class="displayNone" aria-label="NovelAI 生图模型"></select>
+                            <button id="sig_fetch_novelai_models" class="menu_button sig-button" type="button" title="从 API 拉取模型列表">
+                                <i class="fa-solid fa-cloud-arrow-down"></i>
+                                拉取
+                            </button>
+                        </span>
+                        <datalist id="sig_novelai_model_presets">
+                            <option value="nai-diffusion-4-5-full-1024x1024"></option>
+                            <option value="nai-diffusion-4-5-full-1832x1216"></option>
+                            <option value="nai-diffusion-4-5-full-11216x832"></option>
+                        </datalist>
                     </label>
                 </div>
                 <div class="sig-grid sig-grid-compact">
-                    <label>
+                    <label id="sig_image_size_label">
                         图片尺寸
                         <input id="sig_image_size" type="text" placeholder="1024x1024">
                     </label>
@@ -139,10 +167,81 @@
                     生图 API 密钥
                     <input id="sig_image_api_key" type="password" autocomplete="off">
                 </label>
-                <label>
-                    额外生图请求参数 JSON
-                    <textarea id="sig_extra_params" rows="3" spellcheck="false"></textarea>
-                </label>
+                <div id="sig_novelai_fields" class="sig-provider-fields displayNone">
+                    <h4>NovelAI NewAPI 参数</h4>
+                    <div class="sig-mini-tabs" role="tablist" aria-label="NovelAI 设置分类">
+                        <button class="sig-mini-tab active" type="button" data-novelai-tab="params" role="tab" aria-selected="true">
+                            参数
+                        </button>
+                        <button class="sig-mini-tab" type="button" data-novelai-tab="style" role="tab" aria-selected="false">
+                            风格
+                        </button>
+                    </div>
+
+                    <section class="sig-novelai-panel active" data-novelai-panel="params" role="tabpanel">
+                        <textarea id="sig_negative_prompt" class="displayNone" spellcheck="false" aria-hidden="true"></textarea>
+                        <div class="sig-grid sig-grid-compact">
+                            <label>
+                                Steps
+                                <select id="sig_novelai_steps">
+                                    <option value="20">20</option>
+                                    <option value="28">28</option>
+                                </select>
+                            </label>
+                            <label>
+                                Scale
+                                <input id="sig_novelai_scale" type="number" min="1" max="12" step="0.1">
+                            </label>
+                        </div>
+                        <div class="sig-grid sig-grid-compact">
+                            <label>
+                                Sampler
+                                <input id="sig_novelai_sampler" type="text" placeholder="k_euler_ancestral">
+                            </label>
+                            <label>
+                                Seed
+                                <input id="sig_novelai_seed" type="number" step="1" placeholder="留空随机">
+                            </label>
+                        </div>
+                        <textarea id="sig_novelai_params" class="displayNone" spellcheck="false" aria-hidden="true"></textarea>
+                    </section>
+
+                    <section class="sig-novelai-panel" data-novelai-panel="style" role="tabpanel">
+                        <div class="sig-grid sig-grid-compact">
+                            <label>
+                                当前风格
+                                <select id="sig_novelai_style_select"></select>
+                            </label>
+                            <label>
+                                风格名称
+                                <input id="sig_novelai_style_name" type="text">
+                            </label>
+                        </div>
+                        <div class="sig-actions">
+                            <button id="sig_add_novelai_style" class="menu_button sig-button" type="button">
+                                <i class="fa-solid fa-plus"></i>
+                                新增
+                            </button>
+                            <button id="sig_save_novelai_style" class="menu_button sig-button" type="button">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                保存
+                            </button>
+                            <button id="sig_delete_novelai_style" class="menu_button sig-button" type="button">
+                                <i class="fa-solid fa-trash"></i>
+                                删除
+                            </button>
+                        </div>
+                        <label>
+                            正面风格提示词
+                            <textarea id="sig_novelai_style_prompt" rows="4" spellcheck="false" placeholder="masterpiece, best quality, cinematic lighting"></textarea>
+                        </label>
+                        <label>
+                            负面提示词
+                            <textarea id="sig_novelai_style_negative_prompt" rows="3" spellcheck="false" placeholder="lowres, bad anatomy, bad hands, text, watermark, worst quality, bad quality"></textarea>
+                        </label>
+                    </section>
+                </div>
+                <textarea id="sig_extra_params" class="displayNone" spellcheck="false" aria-hidden="true"></textarea>
             </section>
 
             <section class="sig-tab-panel" data-tab-panel="result" role="tabpanel">
@@ -163,6 +262,22 @@
                         打开
                     </button>
                 </div>
+            </section>
+
+            <section class="sig-tab-panel" data-tab-panel="gallery" role="tabpanel">
+                <div class="sig-actions">
+                    <button id="sig_refresh_gallery" class="menu_button sig-button" type="button">
+                        <i class="fa-solid fa-rotate"></i>
+                        刷新
+                    </button>
+                    <button id="sig_clear_gallery" class="menu_button sig-button" type="button">
+                        <i class="fa-solid fa-trash-can"></i>
+                        清空
+                    </button>
+                </div>
+                <div id="sig_gallery_usage" class="sig-gallery-usage"></div>
+                <div id="sig_gallery_empty" class="sig-empty">还没有保存的生图。</div>
+                <div id="sig_gallery" class="sig-gallery" aria-live="polite"></div>
             </section>
 
             <div id="sig_status" class="sig-status" data-type="info"></div>
