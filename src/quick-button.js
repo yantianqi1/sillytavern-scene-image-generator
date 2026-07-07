@@ -26,14 +26,6 @@ export function createQuickButton(root = document) {
     button.setAttribute('tabindex', '0');
     button.setAttribute('aria-label', '根据当前剧情生图');
     button.innerHTML = `
-        <span class="sig-quick-tools">
-            <button id="${QUICK_PROMPT_BUTTON_ID}" class="sig-quick-pill sig-quick-prompt displayNone" type="button" aria-hidden="true">
-                提示词
-            </button>
-            <button id="${QUICK_IMAGE_ONLY_BUTTON_ID}" class="sig-quick-pill sig-quick-image-only displayNone" type="button" aria-hidden="true">
-                仅生图
-            </button>
-        </span>
         <span class="sig-quick-progress" aria-live="polite"></span>
         <i class="fa-solid fa-image"></i>
         <span class="sig-quick-label">生图</span>
@@ -41,26 +33,70 @@ export function createQuickButton(root = document) {
     return button;
 }
 
-export function mountQuickButton(root = document) {
-    const existing = root.querySelector(`#${QUICK_BUTTON_ID}`);
-    if (existing) {
-        return existing;
-    }
+function createQuickAuxButton(root, { id, className, label, title }) {
+    const button = root.createElement('div');
+    button.id = id;
+    button.classList.add('interactable', 'sig-quick-pill', className, 'displayNone');
+    button.title = title;
+    button.textContent = label;
+    button.setAttribute('role', 'button');
+    button.setAttribute('tabindex', '0');
+    button.setAttribute('aria-label', title);
+    button.setAttribute('aria-hidden', 'true');
+    return button;
+}
 
+export function createQuickPromptButton(root = document) {
+    return createQuickAuxButton(root, {
+        id: QUICK_PROMPT_BUTTON_ID,
+        className: 'sig-quick-prompt',
+        label: '提示词',
+        title: '查看本次生图提示词',
+    });
+}
+
+export function createQuickImageOnlyButton(root = document) {
+    return createQuickAuxButton(root, {
+        id: QUICK_IMAGE_ONLY_BUTTON_ID,
+        className: 'sig-quick-image-only',
+        label: '仅生图',
+        title: '使用当前提示词重新生图',
+    });
+}
+
+function getOrCreateButton(root, id, createButton) {
+    return root.querySelector(`#${id}`) || createButton(root);
+}
+
+function insertControls(mount, controls, sendButton = null) {
+    for (const control of controls) {
+        if (sendButton?.parentElement === mount) {
+            mount.insertBefore(control, sendButton);
+        } else {
+            mount.append(control);
+        }
+    }
+}
+
+export function mountQuickButton(root = document) {
     const mount = findQuickButtonMount(root);
     if (!mount) {
         return null;
     }
 
-    const button = createQuickButton(root);
+    const promptButton = getOrCreateButton(root, QUICK_PROMPT_BUTTON_ID, createQuickPromptButton);
+    const imageOnlyButton = getOrCreateButton(root, QUICK_IMAGE_ONLY_BUTTON_ID, createQuickImageOnlyButton);
+    const button = getOrCreateButton(root, QUICK_BUTTON_ID, createQuickButton);
     const sendButton = root.querySelector('#send_but');
-    if (mount.id === 'rightSendForm' && sendButton?.parentElement === mount) {
-        mount.insertBefore(button, sendButton);
-    } else {
-        mount.append(button);
-    }
+    insertControls(mount, [promptButton, imageOnlyButton, button], sendButton);
 
     return button;
+}
+
+function findQuickControl(button, id) {
+    return button?.parentElement?.querySelector?.(`#${id}`)
+        || button?.querySelector?.(`#${id}`)
+        || null;
 }
 
 export function setQuickButtonBusy(button, isBusy) {
@@ -109,7 +145,7 @@ export function setQuickPromptButtonVisible(button, isVisible) {
         return;
     }
 
-    const promptButton = button.querySelector(`#${QUICK_PROMPT_BUTTON_ID}`);
+    const promptButton = findQuickControl(button, QUICK_PROMPT_BUTTON_ID);
     if (!promptButton) {
         return;
     }
@@ -123,7 +159,7 @@ export function setQuickImageOnlyButtonVisible(button, isVisible) {
         return;
     }
 
-    const imageOnlyButton = button.querySelector(`#${QUICK_IMAGE_ONLY_BUTTON_ID}`);
+    const imageOnlyButton = findQuickControl(button, QUICK_IMAGE_ONLY_BUTTON_ID);
     if (!imageOnlyButton) {
         return;
     }

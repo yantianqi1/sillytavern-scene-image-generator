@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 
 import {
     createQuickButton,
+    createQuickImageOnlyButton,
+    createQuickPromptButton,
+    mountQuickButton,
     QUICK_BUTTON_ID,
     QUICK_IMAGE_ONLY_BUTTON_ID,
     QUICK_PROMPT_BUTTON_ID,
@@ -62,25 +65,85 @@ test('maps generation phases to compact progress labels', () => {
     assert.equal(getQuickButtonProgressLabel(null), '');
 });
 
-test('quick button includes a hidden prompt capsule', () => {
-    const button = createQuickButton({
-        createElement(tagName) {
-            return {
-                tagName,
-                id: '',
-                title: '',
-                innerHTML: '',
-                classList: { add() {} },
-                setAttribute() {},
-            };
+function createFakeElement(tagName) {
+    return {
+        tagName,
+        id: '',
+        title: '',
+        innerHTML: '',
+        textContent: '',
+        parentElement: null,
+        attributes: {},
+        classList: {
+            classes: [],
+            add(...classNames) {
+                this.classes.push(...classNames);
+            },
         },
+        setAttribute(name, value) {
+            this.attributes[name] = value;
+        },
+    };
+}
+
+test('quick action buttons are separate input controls', () => {
+    const button = createQuickButton({
+        createElement: createFakeElement,
+    });
+    const promptButton = createQuickPromptButton({
+        createElement: createFakeElement,
+    });
+    const imageOnlyButton = createQuickImageOnlyButton({
+        createElement: createFakeElement,
     });
 
-    assert.match(button.innerHTML, new RegExp(`id="${QUICK_PROMPT_BUTTON_ID}"`));
-    assert.match(button.innerHTML, />\s*提示词\s*</);
-    assert.match(button.innerHTML, new RegExp(`id="${QUICK_IMAGE_ONLY_BUTTON_ID}"`));
-    assert.match(button.innerHTML, />\s*仅生图\s*</);
-    assert.match(button.innerHTML, /displayNone/);
+    assert.equal(button.id, QUICK_BUTTON_ID);
+    assert.doesNotMatch(button.innerHTML, new RegExp(QUICK_PROMPT_BUTTON_ID));
+    assert.equal(promptButton.id, QUICK_PROMPT_BUTTON_ID);
+    assert.equal(promptButton.textContent, '提示词');
+    assert.equal(promptButton.attributes['aria-hidden'], 'true');
+    assert.equal(imageOnlyButton.id, QUICK_IMAGE_ONLY_BUTTON_ID);
+    assert.equal(imageOnlyButton.textContent, '仅生图');
+    assert.equal(imageOnlyButton.attributes['aria-hidden'], 'true');
+});
+
+test('mounts prompt and image-only buttons beside the generate button before send', () => {
+    const children = [];
+    const right = {
+        id: 'rightSendForm',
+        append(element) {
+            children.push(element);
+            element.parentElement = right;
+        },
+        insertBefore(element, reference) {
+            const index = children.indexOf(reference);
+            children.splice(index, 0, element);
+            element.parentElement = right;
+        },
+    };
+    const sendButton = { id: 'send_but', parentElement: right };
+    children.push(sendButton);
+
+    const root = {
+        querySelector(selector) {
+            if (selector === `#${QUICK_BUTTON_ID}`) return null;
+            if (selector === '#rightSendForm') return right;
+            if (selector === '#send_but') return sendButton;
+            return null;
+        },
+        createElement(tagName) {
+            return createFakeElement(tagName);
+        },
+    };
+
+    mountQuickButton(root);
+
+    assert.deepEqual(children.map(child => child.id), [
+        QUICK_PROMPT_BUTTON_ID,
+        QUICK_IMAGE_ONLY_BUTTON_ID,
+        QUICK_BUTTON_ID,
+        'send_but',
+    ]);
 });
 
 test('can show and hide the quick prompt button', () => {

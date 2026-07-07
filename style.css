@@ -286,8 +286,14 @@
 }
 
 #rightSendForm > #sig_quick_generate,
+#rightSendForm > #sig_quick_prompt,
+#rightSendForm > #sig_quick_image_only,
 #leftSendForm > #sig_quick_generate,
-#send_form #sig_quick_generate {
+#leftSendForm > #sig_quick_prompt,
+#leftSendForm > #sig_quick_image_only,
+#send_form #sig_quick_generate,
+#send_form #sig_quick_prompt,
+#send_form #sig_quick_image_only {
     width: auto;
     min-width: var(--bottomFormBlockSize);
     max-width: none;
@@ -302,14 +308,28 @@
     color: var(--SmartThemeBodyColor);
     cursor: pointer;
     opacity: 0.72;
+    order: 2;
     white-space: nowrap;
     writing-mode: horizontal-tb;
     transition: opacity var(--animation-duration-2x), filter var(--animation-duration-2x);
 }
 
-#sig_quick_generate:hover {
+#sig_quick_generate:hover,
+#sig_quick_prompt:hover,
+#sig_quick_image_only:hover {
     opacity: 1;
     filter: brightness(1.2);
+}
+
+#sig_quick_prompt,
+#sig_quick_image_only {
+    font-size: 0.72rem;
+    line-height: 1;
+}
+
+#sig_quick_prompt.displayNone,
+#sig_quick_image_only.displayNone {
+    display: none !important;
 }
 
 #sig_quick_generate[aria-disabled="true"] {
@@ -348,38 +368,6 @@
     z-index: 35;
 }
 
-#sig_quick_generate .sig-quick-tools {
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% + 4px);
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    transform: translateX(-50%);
-    z-index: 36;
-}
-
-#sig_quick_generate .sig-quick-pill {
-    max-width: 72px;
-    min-height: 0;
-    padding: 2px 8px;
-    border: 1px solid var(--SmartThemeBorderColor);
-    border-radius: 999px;
-    background: var(--SmartThemeBlurTintColor);
-    color: var(--SmartThemeBodyColor);
-    font-size: 0.66rem;
-    line-height: 1.2;
-    box-shadow: 0 2px 8px rgb(0 0 0 / 25%);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-#sig_quick_generate.sig-quick-has-progress .sig-quick-tools {
-    display: none;
-}
-
 .sig-prompt-popup {
     display: grid;
     gap: 0.65rem;
@@ -402,8 +390,14 @@
     }
 
     #rightSendForm > #sig_quick_generate,
+    #rightSendForm > #sig_quick_prompt,
+    #rightSendForm > #sig_quick_image_only,
     #leftSendForm > #sig_quick_generate,
-    #send_form #sig_quick_generate {
+    #leftSendForm > #sig_quick_prompt,
+    #leftSendForm > #sig_quick_image_only,
+    #send_form #sig_quick_generate,
+    #send_form #sig_quick_prompt,
+    #send_form #sig_quick_image_only {
         width: var(--bottomFormBlockSize);
         min-width: var(--bottomFormBlockSize);
         padding: 0;

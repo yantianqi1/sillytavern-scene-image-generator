@@ -677,24 +677,27 @@ function bindQuickButton() {
 
     setQuickPromptButtonVisible(quickButton, Boolean(lastQuickPrompt));
     setQuickImageOnlyButtonVisible(quickButton, Boolean(lastQuickPrompt));
-    const promptButton = quickButton.querySelector(`#${QUICK_PROMPT_BUTTON_ID}`);
-    promptButton?.addEventListener('click', event => {
-        event.preventDefault();
-        event.stopPropagation();
-        showLastPromptPopup();
-    });
-    promptButton?.addEventListener('keydown', event => {
-        event.stopPropagation();
-    });
+    const promptButton = quickButton.parentElement?.querySelector(`#${QUICK_PROMPT_BUTTON_ID}`)
+        || quickButton.querySelector(`#${QUICK_PROMPT_BUTTON_ID}`);
+    bindQuickAction(promptButton, showLastPromptPopup);
 
-    const imageOnlyButton = quickButton.querySelector(`#${QUICK_IMAGE_ONLY_BUTTON_ID}`);
-    imageOnlyButton?.addEventListener('click', event => {
+    const imageOnlyButton = quickButton.parentElement?.querySelector(`#${QUICK_IMAGE_ONLY_BUTTON_ID}`)
+        || quickButton.querySelector(`#${QUICK_IMAGE_ONLY_BUTTON_ID}`);
+    bindQuickAction(imageOnlyButton, () => runSceneGeneration({ reusePrompt: true }));
+}
+
+function bindQuickAction(button, action) {
+    button?.addEventListener('click', event => {
         event.preventDefault();
         event.stopPropagation();
-        runSceneGeneration({ reusePrompt: true });
+        action();
     });
-    imageOnlyButton?.addEventListener('keydown', event => {
+    button?.addEventListener('keydown', event => {
         event.stopPropagation();
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            action();
+        }
     });
 }
 
